@@ -3533,10 +3533,8 @@ public class KafkaAdminClient extends AdminClient {
                         final Long offset = partitionData.offset;
                         final String metadata = partitionData.metadata;
                         final Optional<Integer> leaderEpoch = partitionData.leaderEpoch;
-                        // Negative offset indicates that the group has no committed offset for this partition
-                        if (offset < 0) {
-                            groupOffsetsListing.put(topicPartition, null);
-                        } else {
+                        // Negative offset indicates that the group has no committed offset for this partition, so they are skipped
+                        if (offset >= 0) {
                             groupOffsetsListing.put(topicPartition, new OffsetAndMetadata(offset, leaderEpoch, metadata));
                         }
                     } else {

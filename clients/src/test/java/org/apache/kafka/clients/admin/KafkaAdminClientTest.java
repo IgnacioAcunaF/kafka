@@ -2985,12 +2985,11 @@ public class KafkaAdminClientTest {
             final ListConsumerGroupOffsetsResult result = env.adminClient().listConsumerGroupOffsets("group-0");
             final Map<TopicPartition, OffsetAndMetadata> partitionToOffsetAndMetadata = result.partitionsToOffsetAndMetadata().get();
 
-            assertEquals(4, partitionToOffsetAndMetadata.size());
+            assertEquals(3, partitionToOffsetAndMetadata.size());
             assertEquals(10, partitionToOffsetAndMetadata.get(myTopicPartition0).offset());
             assertEquals(0, partitionToOffsetAndMetadata.get(myTopicPartition1).offset());
             assertEquals(20, partitionToOffsetAndMetadata.get(myTopicPartition2).offset());
-            assertTrue(partitionToOffsetAndMetadata.containsKey(myTopicPartition3));
-            assertNull(partitionToOffsetAndMetadata.get(myTopicPartition3));
+            assertFalse(partitionToOffsetAndMetadata.containsKey(myTopicPartition3));
         }
     }
 
