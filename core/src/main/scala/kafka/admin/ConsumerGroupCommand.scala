@@ -567,7 +567,8 @@ object ConsumerGroupCommand extends Logging {
           assignedTopicPartitions = assignedTopicPartitions ++ topicPartitions
           val partitionOffsets = consumerSummary.assignment.topicPartitions.asScala
             .map { topicPartition =>
-              topicPartition -> committedOffsets.get(topicPartition).map(_.offset)
+              // Because there could be cases where the last commited offset is a negative integer (which translates to null, KAFKA-9507 for reference), the following map function could lead to a NullPointerException. A null value filter is added to catch that possible exception.
+              topicPartition -> committedOffsets.get(topicPartition).filter(_ != null).map(_.offset)
             }.toMap
           collectConsumerAssignment(groupId, Option(consumerGroup.coordinator), topicPartitions.toList,
             partitionOffsets, Some(s"${consumerSummary.consumerId}"), Some(s"${consumerSummary.host}"),
