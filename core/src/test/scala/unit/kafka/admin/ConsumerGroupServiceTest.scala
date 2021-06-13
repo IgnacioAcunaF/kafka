@@ -106,7 +106,8 @@ class ConsumerGroupServiceTest {
   }
 
   private def listGroupOffsetsResult: ListConsumerGroupOffsetsResult = {
-    val offsets = topicPartitions.map(_ -> new OffsetAndMetadata(100)).toMap.asJava
+    // Half of the partitions of the testing topics are set to have a negative integer offset (null value [KAFKA-9507 for reference])
+    val offsets = topicPartitions.zipWithIndex.map{ case (tp, i) => tp -> ( if(i % 2 == 0) null else new OffsetAndMetadata(100) ) }.toMap.asJava
     AdminClientTestUtils.listConsumerGroupOffsetsResult(offsets)
   }
 

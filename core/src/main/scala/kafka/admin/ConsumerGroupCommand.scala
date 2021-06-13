@@ -567,7 +567,7 @@ object ConsumerGroupCommand extends Logging {
           assignedTopicPartitions = assignedTopicPartitions ++ topicPartitions
           val partitionOffsets = consumerSummary.assignment.topicPartitions.asScala
             .map { topicPartition =>
-              // Because there could be cases where the last commited offset is a negative integer (which translates to null, KAFKA-9507 for reference), the following map function could lead to a NullPointerException. A null value filter is added to catch that possible exception.
+              // Because there could be cases where the last commited offset is a negative integer (which translates to null [KAFKA-9507 for reference]), the following map function could lead to a NullPointerException. A null value filter is added to catch that possible exception.
               topicPartition -> committedOffsets.get(topicPartition).filter(_ != null).map(_.offset)
             }.toMap
           collectConsumerAssignment(groupId, Option(consumerGroup.coordinator), topicPartitions.toList,
@@ -581,7 +581,8 @@ object ConsumerGroupCommand extends Logging {
             groupId,
             Option(consumerGroup.coordinator),
             unassignedPartitions.keySet.toSeq,
-            unassignedPartitions.map { case (tp, offset) => tp -> Some(offset.offset) },
+            // Because there could be cases where the last commited offset is a negative integer (which translates to null [KAFKA-9507 for reference]), the following map function could lead to a NullPointerException. Two possible types are possible: OffsetsAndMetadata or null (which gets translated to None to avoid further exceptions)
+            unassignedPartitions.map { case (tp, offset) => tp -> ( if(offset.isInstanceOf[OffsetAndMetadata]) Some(offset.offset) else None ) },
             Some(MISSING_COLUMN_VALUE),
             Some(MISSING_COLUMN_VALUE),
             Some(MISSING_COLUMN_VALUE)).toSeq
