@@ -164,6 +164,9 @@ class TestRaftServer(
 
     private var claimedEpoch: Option[Int] = None
 
+    // visible for testing
+    def totalRecordCount(): Int = recordCount.intValue()
+    
     raftManager.register(this)
 
     override def handleLeaderChange(newLeaderAndEpoch: LeaderAndEpoch): Unit = {
@@ -447,7 +450,7 @@ object TestRaftServer extends Logging {
       // KafkaConfig requires either `process.roles` or `zookeeper.connect`. Neither are
       // actually used by the test server, so we fill in `process.roles` with an arbitrary value.
       serverProps.put(KafkaConfig.ProcessRolesProp, "controller")
-
+      println(serverProps)
       val config = KafkaConfig.fromProps(serverProps, doLog = false)
       val throughput = opts.options.valueOf(opts.throughputOpt)
       val recordSize = opts.options.valueOf(opts.recordSizeOpt)
